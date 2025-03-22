@@ -44,6 +44,7 @@
 	import PublicTicketCreate from "./pages/tickets-notes/PublicTicketCreate.svelte";
 	import RadioKiosk from "./pages/management/RadioKiosk.svelte";
 	import Management from "./pages/management/Management.svelte";
+	import AudienceDisplay from "./pages/AudienceDisplay.svelte";
 
 	// Checking userentication
 	let user = get(userStore);
@@ -101,8 +102,16 @@
 
 	const pageIsPublicLog = window.location.pathname.startsWith("/app/logs/") && window.location.pathname.split("/")[3].length == 36;
 	const pageIsPublicTicketCreate = window.location.pathname.startsWith("/app/submit-ticket/");
+	const pageIsAD = window.location.pathname.startsWith("/app/ad");
 
 	function redirectForAuth(a: typeof user) {
+		if (pageIsAD) {
+			if (!user.eventToken) {
+				$userStore.eventToken = window.location.search.substring(1);
+			}
+			return;
+		}
+
 		// if user has event token and is trying to access a page that requires an event token
 		if (user.eventToken && (eventTokenPaths.includes(window.location.pathname) || window.location.pathname.startsWith("/app/logs"))) {
 			return;
@@ -196,7 +205,7 @@
 
 	// Update checking
 
-	update(settings.version, version, openWelcome, openChangelog, pageIsPublicLog || pageIsPublicTicketCreate);
+	update(settings.version, version, openWelcome, openChangelog, pageIsPublicLog || pageIsPublicTicketCreate || pageIsAD);
 
 	// Toast manager
 
@@ -658,8 +667,11 @@
 	</Sidebar>
 </Drawer>
 <Router basepath="/app/">
-	<main class="bg-white dark:bg-neutral-800 w-screen h-dvh flex flex-col">
-		<div class="bg-primary-700 dark:bg-primary-500 flex w-full justify-between px-2 {fullscreen && 'hidden collapse'}">
+	<Route path="/ad">
+		<AudienceDisplay {frameHandler} />
+	</Route>
+	<main class="bg-white dark:bg-neutral-800 w-screen h-dvh flex flex-col {pageIsAD && 'bg-transparent dark:bg-transparent'}">
+		<div class="bg-primary-700 dark:bg-primary-500 flex w-full justify-between px-2 {(fullscreen || pageIsAD) && 'hidden collapse'}">
 			<Button class="!py-0 !px-0 text-white" color="none" on:click={openMenu}>
 				<Icon icon="mdi:menu" class="w-8 h-10" />
 			</Button>
@@ -744,7 +756,10 @@
 			<Route path="/manage" component={Management} />
 		</div>
 
-		<div class="flex justify-around py-2 bg-neutral-900 dark:bg-neutral-700 text-white {fullscreen && 'bg-white dark:bg-neutral-800'}">
+		<div
+			class="flex justify-around py-2 bg-neutral-900 dark:bg-neutral-700 text-white {fullscreen && 'bg-white dark:bg-neutral-800'} {pageIsAD &&
+				'hidden collapse'}"
+		>
 			{#if user.token && user.eventToken && !fullscreen}
 				{#if user?.role === "FTA" || user?.role === "FTAA"}
 					<Link to="/app/">

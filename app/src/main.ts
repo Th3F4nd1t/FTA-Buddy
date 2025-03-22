@@ -42,6 +42,7 @@ export let trpc = createTRPCClient<AppRouter>({
 userStore.subscribe((value) => {
     token = value.token;
     eventToken = value.eventToken;
+    console.log({ token, eventToken });
     trpc = createTRPCClient<AppRouter>({
         links: [
             splitLink({

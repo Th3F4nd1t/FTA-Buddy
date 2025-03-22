@@ -35,7 +35,7 @@ const defaultSettings: Settings = {
     version: '0',
     developerMode: false,
     vibrations: true,
-    forceCloud: true,
+    forceCloud: false,
     soundAlerts: false,
     fieldGreen: true,
     susRobots: false,
