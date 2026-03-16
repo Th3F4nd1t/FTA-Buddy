@@ -482,7 +482,7 @@ function startTeamPolling() {
 	if (teamPollInterval) return;
 	qualsScheduleAvailable = false;
 	pollTeams();
-	teamPollInterval = setInterval(pollTeams, 2 * 60 * 1000);
+	teamPollInterval = setInterval(pollTeams, 5 * 60 * 1000);
 	console.log("Started team polling (every 2 min until quals schedule available)");
 }
 
@@ -506,7 +506,7 @@ async function runMatchAutoImport() {
 function startMatchAutoImport() {
 	if (matchImportInterval) return;
 	runMatchAutoImport();
-	matchImportInterval = setInterval(runMatchAutoImport, 2 * 60 * 1000);
+	matchImportInterval = setInterval(runMatchAutoImport, 5 * 60 * 1000);
 	console.log("Started match auto-import (every 2 min)");
 }
 
