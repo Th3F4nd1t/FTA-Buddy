@@ -36,6 +36,7 @@
 		stopNotificationSubscription,
 	} from "./util/notifications";
 	import { registerToast } from "./util/toast";
+	import { track } from "./util/telemetry";
 	import { update, VERSIONS } from "./util/updater";
 
 	window.addEventListener("error", function (event) {
@@ -159,6 +160,12 @@
 
 	$effect(() => {
 		updateTheme(settings.darkMode);
+	});
+
+	$effect(() => {
+		const page = route.pathname;
+		const eventCode = $eventStore.code || undefined;
+		track("page_view", eventCode, { page });
 	});
 
 	let approvalWarningDismissed = $state(localStorage.getItem("approvalWarningDismissed") === "true");
