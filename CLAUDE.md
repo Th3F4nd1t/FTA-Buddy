@@ -6,10 +6,10 @@ A companion app for FIRST Robotics Competition (FRC) event volunteers — FTAs, 
 
 Three components in a Bun workspace:
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| **Server** | `src/` | Bun + Express + tRPC backend, PostgreSQL via Drizzle ORM |
-| **App** | `app/` | Svelte 5 + TypeScript + Vite frontend (PWA) |
+| Component     | Location     | Purpose                                                   |
+| ------------- | ------------ | --------------------------------------------------------- |
+| **Server**    | `src/`       | Bun + Express + tRPC backend, PostgreSQL via Drizzle ORM  |
+| **App**       | `app/`       | Svelte 5 + TypeScript + Vite frontend (PWA)               |
 | **Extension** | `extension/` | Chrome MV3 extension that connects to FMS and relays data |
 
 Shared types live in `shared/` and are imported by both the server and app.
@@ -42,6 +42,7 @@ bun run format
 ## Environment
 
 Copy `.env.example` to `.env` and fill in values. Required keys:
+
 - `DB_*` — PostgreSQL connection
 - `TBA_API_KEY` — The Blue Alliance API key (for event code validation)
 - `GOOGLE_CLIENT_ID` + `GOOGLE_KEY*` — Google OAuth
@@ -61,22 +62,28 @@ Copy `.env.example` to `.env` and fill in values. Required keys:
 ## Key Patterns
 
 ### Svelte 5 Runes
+
 The app uses Svelte 5 Runes (`$state`, `$derived`, `$effect`, `$props`). Do not use legacy Svelte 4 reactivity (`$:`, `export let`).
 
 ### tRPC
+
 All client-server communication goes through tRPC. The router is at `src/router/` with an `event.ts`, `user.ts`, `cycles.ts`, etc. The client is initialized in `app/src/main.ts` as `trpc`.
 
 ### Shared Types
+
 Types shared between server and app are in `shared/types.ts` and `shared/fmsApiTypes.ts`. Always use these instead of re-defining types.
 
 ### State Management
+
 Svelte stores in `app/src/stores/`:
+
 - `user.ts` — authenticated user (persisted to localStorage)
 - `event.ts` — current event data (persisted to localStorage)
 - `settings.ts` — all user settings (persisted to localStorage + localforage)
 - `notifications.ts`, `flashcards.ts`, `savedEvents.ts`, etc.
 
 ### Database
+
 Drizzle ORM with PostgreSQL. Schema is in `src/db/schema.ts`. After changing the schema, run `bun run generate-migration` then `bun run migrate`.
 
 ## Project Structure

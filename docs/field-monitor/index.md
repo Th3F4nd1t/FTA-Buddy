@@ -21,14 +21,14 @@ Each station shows a row of indicators. See [Indicators](./indicators.md) for a 
 
 The leftmost cell in each row shows the team number. Small emoji icons appear below it to flag issues:
 
-| Icon | Meaning |
-|------|---------|
-| 👀 | Robot needs attention during prestart (connection has been down longer than expected) |
-| 🔍 | Team has not passed inspection (requires "Inspection Alerts" enabled in Settings) |
-| 🛜 | Radio has not been flashed/programmed |
-| 🕑 | Robot is connecting slower than usual based on history |
-| 📝 | Team has an open or recent support note |
-| ⚙️ | Team had an event logged in the previous match |
+| Icon | Meaning                                                                               |
+| ---- | ------------------------------------------------------------------------------------- |
+| 👀   | Robot needs attention during prestart (connection has been down longer than expected) |
+| 🔍   | Team has not passed inspection (requires "Inspection Alerts" enabled in Settings)     |
+| 🛜   | Radio has not been flashed/programmed                                                 |
+| 🕑   | Robot is connecting slower than usual based on history                                |
+| 📝   | Team has an open or recent support note                                               |
+| ⚙️   | Team had an event logged in the previous match                                        |
 
 Tapping the team number cell opens the [Team Modal](./alerts.md#team-modal) with troubleshooting steps.
 
@@ -38,11 +38,11 @@ Tapping the team number cell opens the [Team Modal](./alerts.md#team-modal) with
 
 The top of the Monitor page shows the current field state:
 
-| State | What it means |
-|-------|--------------|
-| **Prestart** | Field is being set up, teams are connecting |
-| **Auto** | Autonomous period running |
-| **Teleop** | Teleoperated period running |
+| State          | What it means                               |
+| -------------- | ------------------------------------------- |
+| **Prestart**   | Field is being set up, teams are connecting |
+| **Auto**       | Autonomous period running                   |
+| **Teleop**     | Teleoperated period running                 |
 | **Match Over** | Match has ended, scores are being processed |
 
 ---

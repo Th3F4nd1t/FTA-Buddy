@@ -13,9 +13,7 @@
 
 	type StepPath = (typeof STEPS)[number]["path"];
 
-	let currentStep = $derived(
-		Math.max(1, STEPS.findIndex((s) => s.path === route.pathname) + 1),
-	);
+	let currentStep = $derived(Math.max(1, STEPS.findIndex((s) => s.path === route.pathname) + 1));
 
 	// If already hosting an event, steps 1 and 2 are not accessible
 	$effect(() => {
@@ -46,9 +44,17 @@
 				>
 					<span
 						class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shrink-0
-							{currentStep > i + 1 ? 'bg-blue-800 text-blue-300' : i + 1 === currentStep ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-neutral-400'}"
-					>{i + 1}</span>
-					<span class="text-sm font-medium {i + 1 === currentStep ? 'text-white' : 'text-neutral-400'} hidden sm:block">
+							{currentStep > i + 1
+							? 'bg-blue-800 text-blue-300'
+							: i + 1 === currentStep
+								? 'bg-blue-600 text-white'
+								: 'bg-neutral-700 text-neutral-400'}">{i + 1}</span
+					>
+					<span
+						class="text-sm font-medium {i + 1 === currentStep
+							? 'text-white'
+							: 'text-neutral-400'} hidden sm:block"
+					>
 						{step.label}
 					</span>
 				</button>

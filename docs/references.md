@@ -13,6 +13,7 @@ Navigate to **ftabuddy.com/references**.
 An interactive guide to the LED status indicators on FRC control system components. For each component, you can look up what a specific blink pattern means.
 
 Covers:
+
 - **Radio** (OpenMesh OM5P-AN) - power, boot status, link indicators
 - **roboRIO** - status LEDs for boot, code, communication
 - **Spark MAX / Spark Flex** (REV Robotics) - motor controller status
@@ -27,6 +28,7 @@ Covers:
 **ftabuddy.com/references/softwaredocs**
 
 Links to official software documentation:
+
 - **WPILib** - FRC programming library docs
 - **FRC-docs** - official FRC control system documentation
 - Vendor libraries (REV, CTRE, etc.)

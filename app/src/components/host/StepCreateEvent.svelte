@@ -142,7 +142,10 @@
 				<button
 					class="text-blue-400 hover:underline"
 					type="button"
-					onclick={() => { eventCode = tbaKey ?? ""; checkEventCode(); }}>{tbaKey}</button
+					onclick={() => {
+						eventCode = tbaKey ?? "";
+						checkEventCode();
+					}}>{tbaKey}</button
 				>
 			{/if}
 		</Helper>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from "@iconify/svelte";
 	import { Badge, Button, Card, Input } from "flowbite-svelte";
-	import { onMount } from "svelte";
+	import { onMount, type ComponentProps } from "svelte";
 	import { formatTime } from "../../../../shared/formatTime";
 	import type { EventState } from "../../../../src/router/field-monitor";
 	import { trpc } from "../../main";
@@ -86,7 +86,7 @@
 		11: "Match Not Ready",
 	};
 
-	const fieldStateBadgeColor: Record<number, string> = {
+	const fieldStateBadgeColor: Record<number, ComponentProps<typeof Badge>["color"]> = {
 		1: "green",
 		3: "green",
 		4: "blue",
@@ -98,7 +98,7 @@
 		10: "indigo",
 	};
 
-	const roleColors: Record<string, string> = {
+	const roleColors: Record<string, ComponentProps<typeof Badge>["color"]> = {
 		FTA: "blue",
 		FTAA: "green",
 		CSA: "yellow",
@@ -123,9 +123,25 @@
 		return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
 	}
 
-	let telemetryWeekIndex = $state(0); // 0 = current week, 1 = prev, etc.
-	let telemetryShowYtd = $state(false);
-	let activityWeekIndex = $state(0); // 0 = current week, 1 = prev, etc.
+	// Shared week navigation — controls both Activity and Feature Usage
+	let weekIndex = $state(0);
+
+	function currentWeekStart(): string {
+		const now = new Date();
+		const daysBack = (now.getDay() - 2 + 7) % 7;
+		const tuesday = new Date(now);
+		tuesday.setDate(now.getDate() - daysBack);
+		return tuesday.toISOString().split("T")[0];
+	}
+
+	function weekRange(tuesdayStr: string): string {
+		const [y, m, d] = tuesdayStr.split("-").map(Number);
+		const start = new Date(y, m - 1, d);
+		const end = new Date(y, m - 1, d + 6);
+		const fmt = (dt: Date) => dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+		return fmt(start) + " - " + fmt(end);
+	}
+	let showYtd = $state(false);
 
 	const telemetryLabels: Record<string, string> = {
 		page_view: "Page Views",
@@ -141,13 +157,87 @@
 
 <div class="h-full overflow-y-auto bg-gray-50 dark:bg-neutral-900">
 	<div class="max-w-6xl mx-auto p-4 flex flex-col gap-6">
-
 		<!-- Stats Cards -->
 		{#if statsLoading}
 			<div class="flex items-center justify-center py-8">
 				<Icon icon="mdi:loading" class="w-8 h-8 animate-spin text-primary-700 dark:text-primary-400" />
 			</div>
 		{:else if stats}
+			{@const maxWeekIdx = Math.max(stats.activityWeeks.length, (telemetry?.weeks.length ?? 1) - 1)}
+			{@const weekLabel = weekRange(
+				weekIndex === 0
+					? currentWeekStart()
+					: (stats.activityWeeks[weekIndex - 1]?.weekStart ??
+							telemetry?.weeks[weekIndex]?.weekStart ??
+							currentWeekStart()),
+			)}
+			{@const ytdActivity = {
+				notesThisWeek: stats.activityWeeks.reduce((s, w) => s + w.notesThisWeek, 0),
+				messagesThisWeek: stats.activityWeeks.reduce((s, w) => s + w.messagesThisWeek, 0),
+				matchEventsThisWeek: stats.activityWeeks.reduce((s, w) => s + w.matchEventsThisWeek, 0),
+				matchEventsConverted: stats.activityWeeks.reduce((s, w) => s + w.matchEventsConverted, 0),
+				matchEventsDismissed: stats.activityWeeks.reduce((s, w) => s + w.matchEventsDismissed, 0),
+				matchLogsThisWeek: stats.activityWeeks.reduce((s, w) => s + w.matchLogsThisWeek, 0),
+				newUsers: stats.activityWeeks.reduce((s, w) => s + w.newUsers, 0),
+				activeUsers: stats.activityWeeks.reduce((s, w) => s + w.activeUsers, 0),
+				newEvents: stats.activityWeeks.reduce((s, w) => s + w.newEvents, 0),
+			}}
+			{@const activityData = showYtd
+				? ytdActivity
+				: weekIndex === 0
+					? stats.activity
+					: (stats.activityWeeks[weekIndex - 1] ?? stats.activity)}
+			{@const weekUserEvents = showYtd
+				? {
+						newUsers: ytdActivity.newUsers,
+						activeUsers: ytdActivity.activeUsers,
+						newEvents: ytdActivity.newEvents,
+					}
+				: weekIndex === 0
+					? {
+							newUsers: stats.users.newThisWeek,
+							activeUsers: stats.users.activeThisWeek,
+							newEvents: stats.events.newThisWeek,
+						}
+					: {
+							newUsers: stats.activityWeeks[weekIndex - 1]?.newUsers ?? 0,
+							activeUsers: stats.activityWeeks[weekIndex - 1]?.activeUsers ?? 0,
+							newEvents: stats.activityWeeks[weekIndex - 1]?.newEvents ?? 0,
+						}}
+
+			<!-- Week nav — controls all sections -->
+			<div class="flex items-center justify-end gap-2">
+				{#if !showYtd}
+					<button
+						class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+						disabled={weekIndex + 1 > maxWeekIdx}
+						onclick={() => (weekIndex += 1)}
+					>
+						<Icon icon="mdi:chevron-left" class="w-5 h-5" />
+					</button>
+					<span class="text-sm text-gray-600 dark:text-gray-400 min-w-32 text-center">{weekLabel}</span>
+					<button
+						class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+						disabled={weekIndex === 0}
+						onclick={() => (weekIndex = Math.max(0, weekIndex - 1))}
+					>
+						<Icon icon="mdi:chevron-right" class="w-5 h-5" />
+					</button>
+				{/if}
+				<button
+					class="text-xs px-3 py-1 rounded-full border transition-colors
+						{showYtd
+						? 'bg-primary-600 text-white border-primary-600'
+						: 'text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-primary-500'}"
+					onclick={() => {
+						showYtd = !showYtd;
+						weekIndex = 0;
+					}}
+				>
+					YTD
+				</button>
+			</div>
+
 			<!-- User Stats -->
 			<div>
 				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Users</h2>
@@ -157,12 +247,12 @@
 						<p class="text-sm text-gray-500 mt-1">Total Users</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-green-700 dark:text-green-400">{stats.users.newThisWeek}</p>
-						<p class="text-sm text-gray-500 mt-1">New This Week</p>
+						<p class="text-3xl font-bold text-green-700 dark:text-green-400">{weekUserEvents.newUsers}</p>
+						<p class="text-sm text-gray-500 mt-1">New {showYtd ? "YTD" : "This Week"}</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{stats.users.activeThisWeek}</p>
-						<p class="text-sm text-gray-500 mt-1">Active This Week</p>
+						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{weekUserEvents.activeUsers}</p>
+						<p class="text-sm text-gray-500 mt-1">Active {showYtd ? "YTD" : "This Week"}</p>
 					</Card>
 					<Card class="p-4">
 						<p class="text-xs font-semibold text-gray-500 mb-2">By Role</p>
@@ -188,8 +278,8 @@
 						<p class="text-sm text-gray-500 mt-1">This Season</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{stats.events.newThisWeek}</p>
-						<p class="text-sm text-gray-500 mt-1">This Week</p>
+						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{weekUserEvents.newEvents}</p>
+						<p class="text-sm text-gray-500 mt-1">{showYtd ? "YTD" : "This Week"}</p>
 					</Card>
 					<Card class="p-4 text-center">
 						<p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{stats.events.liveNow}</p>
@@ -198,109 +288,59 @@
 				</div>
 			</div>
 
-			<!-- Activity This Week -->
+			<!-- Activity -->
 			<div>
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Activity</h2>
-					<div class="flex items-center gap-2">
-						<button
-							class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
-							disabled={activityWeekIndex >= stats.activityWeeks.length - 1}
-							onclick={() => activityWeekIndex++}
-						>
-							<Icon icon="mdi:chevron-left" class="w-5 h-5" />
-						</button>
-						<span class="text-sm text-gray-600 dark:text-gray-400 min-w-20 text-center">
-							{activityWeekIndex === 0
-								? "This Week"
-								: "Wk of " + new Date(stats.activityWeeks[activityWeekIndex]?.weekStart ?? "").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-						</span>
-						<button
-							class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
-							disabled={activityWeekIndex === 0}
-							onclick={() => activityWeekIndex--}
-						>
-							<Icon icon="mdi:chevron-right" class="w-5 h-5" />
-						</button>
-					</div>
-				</div>
-				{@const activityData = activityWeekIndex === 0 ? stats.activity : (stats.activityWeeks[activityWeekIndex] ?? stats.activity)}
+				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Activity</h2>
 				<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
 					<Card class="p-4 text-center">
 						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.notesThisWeek}</p>
 						<p class="text-xs text-gray-500 mt-1">Notes</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.messagesThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+							{activityData.messagesThisWeek}
+						</p>
 						<p class="text-xs text-gray-500 mt-1">Messages</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.matchEventsThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+							{activityData.matchEventsThisWeek}
+						</p>
 						<p class="text-xs text-gray-500 mt-1">Auto Events</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-green-700 dark:text-green-400">{activityData.matchEventsConverted}</p>
+						<p class="text-2xl font-bold text-green-700 dark:text-green-400">
+							{activityData.matchEventsConverted}
+						</p>
 						<p class="text-xs text-gray-500 mt-1">Converted</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-red-600 dark:text-red-400">{activityData.matchEventsDismissed}</p>
+						<p class="text-2xl font-bold text-red-600 dark:text-red-400">
+							{activityData.matchEventsDismissed}
+						</p>
 						<p class="text-xs text-gray-500 mt-1">Dismissed</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.matchLogsThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+							{activityData.matchLogsThisWeek}
+						</p>
 						<p class="text-xs text-gray-500 mt-1">Match Logs</p>
 					</Card>
 				</div>
 			</div>
 
-			<!-- Telemetry -->
+			<!-- Feature Usage (shares the same week nav) -->
 			<div>
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Feature Usage</h2>
-					{#if telemetry && telemetry.weeks.length > 0}
-						<div class="flex items-center gap-2">
-							{#if !telemetryShowYtd}
-								<button
-									class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
-									disabled={telemetryWeekIndex >= telemetry.weeks.length - 1}
-									onclick={() => telemetryWeekIndex++}
-								>
-									<Icon icon="mdi:chevron-left" class="w-5 h-5" />
-								</button>
-								<span class="text-sm text-gray-600 dark:text-gray-400 min-w-20 text-center">
-									{telemetryWeekIndex === 0
-										? "This Week"
-										: "Wk of " + new Date(telemetry.weeks[telemetryWeekIndex]?.weekStart ?? "").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-								</span>
-								<button
-									class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
-									disabled={telemetryWeekIndex === 0}
-									onclick={() => telemetryWeekIndex--}
-								>
-									<Icon icon="mdi:chevron-right" class="w-5 h-5" />
-								</button>
-							{/if}
-							<button
-								class="text-xs px-3 py-1 rounded-full border transition-colors
-									{telemetryShowYtd
-										? 'bg-primary-600 text-white border-primary-600'
-										: 'text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-primary-500'}"
-								onclick={() => { telemetryShowYtd = !telemetryShowYtd; telemetryWeekIndex = 0; }}
-							>
-								YTD
-							</button>
-						</div>
-					{/if}
-				</div>
+				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Feature Usage</h2>
 				<Card class="p-4">
 					{#if !telemetry || telemetry.eventTypes.length === 0}
 						<p class="text-sm text-gray-400 italic">No telemetry data yet.</p>
 					{:else}
-						{@const rows = telemetryShowYtd
+						{@const rows = showYtd
 							? telemetry.ytd
 							: telemetry.eventTypes.map((type) => ({
 									event_type: type,
-									count: telemetry.weeks[telemetryWeekIndex]?.counts[type] ?? 0,
+									count: telemetry?.weeks[weekIndex]?.counts[type] ?? 0,
 								}))}
 						{@const max = Math.max(...rows.map((r) => r.count), 1)}
 						<div class="flex flex-col gap-2">
@@ -315,7 +355,9 @@
 											style="width: {Math.round((row.count / max) * 100)}%"
 										></div>
 									</div>
-									<span class="text-sm font-semibold text-gray-700 dark:text-gray-300 w-14 text-right">
+									<span
+										class="text-sm font-semibold text-gray-700 dark:text-gray-300 w-14 text-right"
+									>
 										{row.count > 0 ? row.count.toLocaleString() : "—"}
 									</span>
 								</div>
@@ -332,12 +374,13 @@
 			<Card class="p-4">
 				<div class="flex flex-col gap-2">
 					<Input type="text" placeholder="Message" bind:value={message} />
-					<Input type="text" placeholder="Affected event codes (comma-separated)" bind:value={effectedEvents} />
+					<Input
+						type="text"
+						placeholder="Affected event codes (comma-separated)"
+						bind:value={effectedEvents}
+					/>
 					<div class="flex gap-2 mt-1">
-						<Button
-							color="red"
-							onclick={() => startIssue(message, effectedEvents.split(","))}
-						>
+						<Button color="red" onclick={() => startIssue(message, effectedEvents.split(","))}>
 							<Icon icon="mdi:alert-circle" class="mr-1 w-4 h-4" /> Start Issue
 						</Button>
 						<Button color="green" onclick={endIssue}>
@@ -360,8 +403,14 @@
 						<!-- Header -->
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-2">
-								<div class="w-2 h-2 rounded-full {hearts[event.code] ? 'bg-green-500' : 'bg-gray-300'} transition-colors"></div>
-								<span class="font-semibold text-gray-800 dark:text-gray-100">{event.code.toUpperCase()}</span>
+								<div
+									class="w-2 h-2 rounded-full {hearts[event.code]
+										? 'bg-green-500'
+										: 'bg-gray-300'} transition-colors"
+								></div>
+								<span class="font-semibold text-gray-800 dark:text-gray-100"
+									>{event.code.toUpperCase()}</span
+								>
 							</div>
 							<Badge color={fieldStateBadgeColor[event.field] ?? "gray"} class="text-xs">
 								{FieldStates[event.field] ?? "Unknown"}
@@ -395,7 +444,9 @@
 
 						<!-- Clients -->
 						{#if event.clients.length > 0}
-							<p class="text-xs text-gray-500">{event.clients.length} client{event.clients.length !== 1 ? 's' : ''} connected</p>
+							<p class="text-xs text-gray-500">
+								{event.clients.length} client{event.clients.length !== 1 ? "s" : ""} connected
+							</p>
 						{/if}
 
 						<!-- Users -->
@@ -416,6 +467,5 @@
 				{/if}
 			</div>
 		</div>
-
 	</div>
 </div>

@@ -5,8 +5,8 @@
 1. Tap the **+** button (usually in the Feed View or on a team's page).
 2. Select the **note type**: Team Issue, Event Note, or Match Note.
 3. Fill in the details:
-   - For Team Issues: select the team number and one or more issue categories.
-   - For Event/Match Notes: describe the issue.
+    - For Team Issues: select the team number and one or more issue categories.
+    - For Event/Match Notes: describe the issue.
 4. Add any additional description.
 5. Tap **Save**.
 
@@ -18,17 +18,17 @@ New notes are visible to all event volunteers immediately.
 
 When creating a Team Issue, you can tag it with one or more categories to help route it to the right person:
 
-| Category | Examples |
-|----------|---------|
-| **RoboRIO** | RIO not booting, code crash |
-| **Driver Station** | DS laptop problem, IP config, firewall |
-| **Radio** | Radio not connecting, wrong team number |
-| **Power** | Battery voltage issues, brownouts, PDH/PDP |
-| **Mechanical** | Mechanical robot problem |
-| **Electrical** | Wiring issues, motor controllers |
-| **Volunteer** | Volunteer-related note |
-| **Venue** | Field or venue issue |
-| **Other** | Anything that doesn't fit the above |
+| Category           | Examples                                   |
+| ------------------ | ------------------------------------------ |
+| **RoboRIO**        | RIO not booting, code crash                |
+| **Driver Station** | DS laptop problem, IP config, firewall     |
+| **Radio**          | Radio not connecting, wrong team number    |
+| **Power**          | Battery voltage issues, brownouts, PDH/PDP |
+| **Mechanical**     | Mechanical robot problem                   |
+| **Electrical**     | Wiring issues, motor controllers           |
+| **Volunteer**      | Volunteer-related note                     |
+| **Venue**          | Field or venue issue                       |
+| **Other**          | Anything that doesn't fit the above        |
 
 Multiple categories can be selected on a single note.
 

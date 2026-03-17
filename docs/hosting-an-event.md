@@ -77,6 +77,7 @@ If your event runs multiple fields simultaneously (e.g. a championship with mult
 ## Sharing the Password
 
 Once the event is created, share the password with:
+
 - FTAAs, CSAs, and RIs at the event
 - Anyone who needs access to Notepad or live field data
 

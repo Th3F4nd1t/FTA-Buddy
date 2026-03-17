@@ -135,10 +135,8 @@ export class SignalR extends TypedEventEmitter<SignalREventMap> {
 			() => console.log("Retrying infrastructure connection..."),
 		);
 
-		this.ftaAppHubConnection = this.buildConnection(
-			`http://${this.ip}/ftaAppHub`,
-			"ftaAppHub",
-			() => console.log("Retrying ftaAppHub connection..."),
+		this.ftaAppHubConnection = this.buildConnection(`http://${this.ip}/ftaAppHub`, "ftaAppHub", () =>
+			console.log("Retrying ftaAppHub connection..."),
 		);
 
 		if (this.statusInterval) clearInterval(this.statusInterval);
@@ -146,7 +144,7 @@ export class SignalR extends TypedEventEmitter<SignalREventMap> {
 			signalRConnectionStatus = this.connection?.state ?? HubConnectionState.Disconnected;
 		}, 5000);
 
-        // #region fieldMonitorHub
+		// #region fieldMonitorHub
 
 		this.connection.on("matchstatusinfochanged", async (data) => {
 			switch (data.MatchState) {
@@ -253,7 +251,7 @@ export class SignalR extends TypedEventEmitter<SignalREventMap> {
 		this.connection.onreconnecting(() => console.log("fieldMonitor connection lost, reconnecting"));
 		this.connection.onclose(() => console.log("fieldMonitor connection closed"));
 
-        // #region infrastructureHub
+		// #region infrastructureHub
 
 		this.infrastructureConnection.on("robotversiondatachanged", (data) => {
 			const team: ROBOT = ((data.Alliance === "Red" ? "red" : "blue") +
@@ -281,7 +279,7 @@ export class SignalR extends TypedEventEmitter<SignalREventMap> {
 		this.infrastructureConnection.onreconnecting(() => console.log("infrastructure connection lost, reconnecting"));
 		this.infrastructureConnection.onclose(() => console.log("infrastructure connection closed"));
 
-        // #region ftaAppHub
+		// #region ftaAppHub
 
 		this.ftaAppHubConnection.on("noteadded", (note: FTANoteRecord) => {
 			this.emit("noteChanged", "added", normalizeFmsNote(note));
@@ -339,7 +337,7 @@ export class SignalR extends TypedEventEmitter<SignalREventMap> {
 		console.log("SignalR stopped");
 	}
 
-    // #region Helpers
+	// #region Helpers
 
 	private dsState(data: SignalRMonitorFrame): DSState {
 		if (data.IsBypassed) return DSState.BYPASS;

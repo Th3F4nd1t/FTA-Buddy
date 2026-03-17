@@ -8,21 +8,21 @@ Navigate to a station log by opening a match from the [Match Logs list](./index.
 
 ## Metrics
 
-| Metric | Description |
-|--------|-------------|
-| **Battery** | Robot battery voltage (volts). Values below ~11V may indicate brownouts. |
-| **Ping** | Round-trip time between FMS and the robot (ms). High ping indicates network congestion or distance issues. |
-| **Signal** | WiFi signal strength at the field access point (dBm). Lower (more negative) values = weaker signal. |
-| **SNR** | Signal-to-Noise Ratio (dB). Higher is better. Low SNR in a noisy RF environment causes packet loss. |
+| Metric                | Description                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Battery**           | Robot battery voltage (volts). Values below ~11V may indicate brownouts.                                            |
+| **Ping**              | Round-trip time between FMS and the robot (ms). High ping indicates network congestion or distance issues.          |
+| **Signal**            | WiFi signal strength at the field access point (dBm). Lower (more negative) values = weaker signal.                 |
+| **SNR**               | Signal-to-Noise Ratio (dB). Higher is better. Low SNR in a noisy RF environment causes packet loss.                 |
 | **Data Rate (TX/RX)** | Bandwidth used in each direction (Mbps). High TX from the robot may indicate vision streaming or excessive logging. |
-| **MCS** | Modulation and Coding Scheme index. Higher MCS = faster WiFi link rate, but requires better signal quality. |
-| **Packet Loss** | Number of lost packets. Any non-zero value during a match is worth investigating. |
-| **DS Link** | Whether the Driver Station had a valid link to FMS at each second. |
-| **Radio Link** | Whether the robot's radio was connected to the field AP at each second. |
-| **RIO Link** | Whether the roboRIO was communicating at each second. |
-| **Code** | Whether robot code was running at each second. |
-| **Enabled** | Whether the robot was enabled during auto or teleop. |
-| **Brownout** | Whether the robot triggered a brownout protection event. |
+| **MCS**               | Modulation and Coding Scheme index. Higher MCS = faster WiFi link rate, but requires better signal quality.         |
+| **Packet Loss**       | Number of lost packets. Any non-zero value during a match is worth investigating.                                   |
+| **DS Link**           | Whether the Driver Station had a valid link to FMS at each second.                                                  |
+| **Radio Link**        | Whether the robot's radio was connected to the field AP at each second.                                             |
+| **RIO Link**          | Whether the roboRIO was communicating at each second.                                                               |
+| **Code**              | Whether robot code was running at each second.                                                                      |
+| **Enabled**           | Whether the robot was enabled during auto or teleop.                                                                |
+| **Brownout**          | Whether the robot triggered a brownout protection event.                                                            |
 
 ---
 
@@ -53,6 +53,7 @@ Tap the **Share** button to generate a public link for this station log. The lin
 A **QR code** is also displayed so you can hold your phone up for someone to scan directly.
 
 The share URL follows this format:
+
 ```
 https://ftabuddy.com/logs/[matchId]/[shareCode]
 ```

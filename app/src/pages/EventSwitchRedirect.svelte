@@ -43,7 +43,12 @@
 		const saved = get(savedEventsStore);
 
 		if (!eventCode) {
-			console.warn("[EventSwitchRedirect] eventCode prop is undefined. Props:", { eventCode, id, matchid, station });
+			console.warn("[EventSwitchRedirect] eventCode prop is undefined. Props:", {
+				eventCode,
+				id,
+				matchid,
+				station,
+			});
 			console.warn("[EventSwitchRedirect] Falling back to redirectPath:", redirectPath);
 			navigate(redirectPath as any, { replace: true });
 			return;
@@ -69,7 +74,8 @@
 		}
 
 		// We have a saved token for this event - restore silently and redirect
-		const savedEntry = saved[normalizedCode] ?? Object.values(saved).find((e) => e.code.toLowerCase() === normalizedCode);
+		const savedEntry =
+			saved[normalizedCode] ?? Object.values(saved).find((e) => e.code.toLowerCase() === normalizedCode);
 		if (savedEntry) {
 			if (savedEntry.subEvents) {
 				userStore.update((u) => ({

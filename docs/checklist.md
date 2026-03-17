@@ -10,13 +10,13 @@ Navigate to it at **ftabuddy.com/checklist** or through the menu.
 
 Each team has five checkboxes:
 
-| Status | What it means |
-|--------|--------------|
-| **Present** | Team has checked in and is at the event |
-| **Weighed** | Robot has been weighed by inspection |
-| **Inspected** | Robot has passed full inspection |
-| **Radio Programmed** | Robot's radio has been flashed with the correct team number |
-| **Connection Tested** | Robot has passed a DS connection test |
+| Status                | What it means                                               |
+| --------------------- | ----------------------------------------------------------- |
+| **Present**           | Team has checked in and is at the event                     |
+| **Weighed**           | Robot has been weighed by inspection                        |
+| **Inspected**         | Robot has passed full inspection                            |
+| **Radio Programmed**  | Robot's radio has been flashed with the correct team number |
+| **Connection Tested** | Robot has passed a DS connection test                       |
 
 ---
 

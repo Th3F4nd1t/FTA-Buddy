@@ -157,7 +157,9 @@ export const eventRouter = router({
 						checklist: events.checklist,
 						users: events.users,
 						archived: events.archived,
-						subEvents: events.meshedEvent,					notepadOnly: events.notepadOnly,					})
+						subEvents: events.meshedEvent,
+						notepadOnly: events.notepadOnly,
+					})
 					.from(events)
 					.where(eq(events.code, input.code))
 			)[0];

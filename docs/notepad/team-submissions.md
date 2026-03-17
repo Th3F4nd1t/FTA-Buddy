@@ -21,6 +21,7 @@ You can share this link as a QR code posted in the pit area, or distribute it to
 ## What Teams See
 
 When a team opens the submission link they see a simple form:
+
 - **Team number** field
 - **Description** of the issue
 - **Submit** button

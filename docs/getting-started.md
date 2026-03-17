@@ -7,6 +7,7 @@ FTA Buddy is a web app (and installable mobile app) for FRC event volunteers. It
 Go to **ftabuddy.com** and tap **Login / Sign Up**.
 
 You can sign up with:
+
 - **Email and password** - enter an email, choose a password, and pick a username.
 - **Google** - tap "Sign in with Google" and complete the OAuth flow.
 
@@ -16,12 +17,12 @@ After signing in you'll be asked to select your **role**. You can change this la
 
 Your role determines which features you see and how the app behaves by default.
 
-| Role | Who it's for | Default notepad view | Key access |
-|------|-------------|----------------------|------------|
-| **FTA** | Field Technical Advisor | Field view | Monitor, Flashcards, Notepad, Logs, Checklist, Reports |
-| **FTAA** | Assistant FTA | Field view | Same as FTA |
-| **CSA** | Control System Advisor | Feed view | Notepad, References, Notifications |
-| **RI** | Robot Inspector | Feed view | Checklist, References, Notifications |
+| Role     | Who it's for            | Default notepad view | Key access                                             |
+| -------- | ----------------------- | -------------------- | ------------------------------------------------------ |
+| **FTA**  | Field Technical Advisor | Field view           | Monitor, Flashcards, Notepad, Logs, Checklist, Reports |
+| **FTAA** | Assistant FTA           | Field view           | Same as FTA                                            |
+| **CSA**  | Control System Advisor  | Feed view            | Notepad, References, Notifications                     |
+| **RI**   | Robot Inspector         | Feed view            | Checklist, References, Notifications                   |
 
 You can change your role at any time in [Settings](./settings.md).
 

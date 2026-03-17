@@ -8,16 +8,16 @@ Each station row displays up to eight indicator cells. On smaller screens some c
 
 Shows the connection state between FMS and the team's Driver Station laptop.
 
-| Color / Label | State | What it means |
-|---------------|-------|--------------|
-| Red | **No link** | Ethernet cable is not connected or no link light |
-| Green | **Connected** | FMS has a good DS link |
-| Green + **X** | **No FMS comms** | Ethernet is plugged in, but DS isn't communicating with FMS |
-| Yellow + **M** | **Move Station** | Team is plugged into the wrong station; their DS will tell them where to go |
-| Yellow + **W** | **Waiting** | FMS is waiting for the team |
-| Dark red + **B** | **Bypass** | Station has been bypassed by the scorekeeper |
-| Dark red + **E** | **E-Stop** | Emergency stop has been activated |
-| Dark red + **A** | **A-Stop** | Autonomous stop has been activated |
+| Color / Label    | State            | What it means                                                               |
+| ---------------- | ---------------- | --------------------------------------------------------------------------- |
+| Red              | **No link**      | Ethernet cable is not connected or no link light                            |
+| Green            | **Connected**    | FMS has a good DS link                                                      |
+| Green + **X**    | **No FMS comms** | Ethernet is plugged in, but DS isn't communicating with FMS                 |
+| Yellow + **M**   | **Move Station** | Team is plugged into the wrong station; their DS will tell them where to go |
+| Yellow + **W**   | **Waiting**      | FMS is waiting for the team                                                 |
+| Dark red + **B** | **Bypass**       | Station has been bypassed by the scorekeeper                                |
+| Dark red + **E** | **E-Stop**       | Emergency stop has been activated                                           |
+| Dark red + **A** | **A-Stop**       | Autonomous stop has been activated                                          |
 
 ---
 
@@ -25,10 +25,10 @@ Shows the connection state between FMS and the team's Driver Station laptop.
 
 Shows whether the robot's radio (OpenMesh OM5P-AN or similar) is communicating with the field access point.
 
-| Color | State |
-|-------|-------|
-| Green | Radio link established |
-| Red | No radio link |
+| Color         | State                                                                  |
+| ------------- | ---------------------------------------------------------------------- |
+| Green         | Radio link established                                                 |
+| Red           | No radio link                                                          |
 | Green + **X** | Field can see the radio MAC address but the robot hasn't connected yet |
 
 ---
@@ -37,10 +37,10 @@ Shows whether the robot's radio (OpenMesh OM5P-AN or similar) is communicating w
 
 Shows whether the roboRIO is communicating over the robot network.
 
-| Color | State |
-|-------|-------|
-| Green | RIO is communicating |
-| Red | RIO not detected |
+| Color         | State                                   |
+| ------------- | --------------------------------------- |
+| Green         | RIO is communicating                    |
+| Red           | RIO not detected                        |
 | Green + **X** | RIO is up but robot code is not running |
 
 ---
@@ -81,12 +81,12 @@ Shows the current bandwidth usage in Mbps as a plain number. High values can ind
 
 Shows the radio signal strength in dBm with a visual signal bar icon:
 
-| Icon | Level | dBm |
-|------|-------|-----|
-| 3 bars (green) | Excellent | > -60 dBm |
-| 2 bars (yellow) | Fair | -60 to -70 dBm |
-| 1 bar (red) | Poor | -70 to -80 dBm |
-| No bars | No signal | ≤ -80 dBm |
+| Icon            | Level     | dBm            |
+| --------------- | --------- | -------------- |
+| 3 bars (green)  | Excellent | > -60 dBm      |
+| 2 bars (yellow) | Fair      | -60 to -70 dBm |
+| 1 bar (red)     | Poor      | -70 to -80 dBm |
+| No bars         | No signal | ≤ -80 dBm      |
 
 The raw dBm value is shown as a small number above the icon.
 

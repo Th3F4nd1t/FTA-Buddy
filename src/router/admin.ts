@@ -46,6 +46,9 @@ export const adminRouter = router({
 			convertedWeekly,
 			dismissedWeekly,
 			matchLogsWeekly,
+			newUsersWeekly,
+			activeUsersWeekly,
+			newEventsWeekly,
 		] = await Promise.all([
 			db.select({ totalUsers: count() }).from(users),
 			db.select({ newUsersThisWeek: count() }).from(users).where(gt(users.created_at, weekStart)),
@@ -57,16 +60,61 @@ export const adminRouter = router({
 			db.select({ notesThisWeek: count() }).from(notes).where(gt(notes.created_at, weekStart)),
 			db.select({ messagesThisWeek: count() }).from(messages).where(gt(messages.created_at, weekStart)),
 			db.select({ matchEventsThisWeek: count() }).from(matchEvents).where(gt(matchEvents.created_at, weekStart)),
-			db.select({ matchEventsConverted: count() }).from(matchEvents).where(and(eq(matchEvents.status, "converted"), gt(matchEvents.created_at, weekStart))),
-			db.select({ matchEventsDismissed: count() }).from(matchEvents).where(and(eq(matchEvents.status, "dismissed"), gt(matchEvents.created_at, weekStart))),
+			db
+				.select({ matchEventsConverted: count() })
+				.from(matchEvents)
+				.where(and(eq(matchEvents.status, "converted"), gt(matchEvents.created_at, weekStart))),
+			db
+				.select({ matchEventsDismissed: count() })
+				.from(matchEvents)
+				.where(and(eq(matchEvents.status, "dismissed"), gt(matchEvents.created_at, weekStart))),
 			db.select({ matchLogsThisWeek: count() }).from(matchLogs).where(gt(matchLogs.start_time, weekStart)),
 			// Yearly weekly breakdowns
-			db.select({ week: tuesdayWeek(notes.created_at), cnt: count() }).from(notes).where(gt(notes.created_at, yearStart)).groupBy(tuesdayWeek(notes.created_at)),
-			db.select({ week: tuesdayWeek(messages.created_at), cnt: count() }).from(messages).where(gt(messages.created_at, yearStart)).groupBy(tuesdayWeek(messages.created_at)),
-			db.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() }).from(matchEvents).where(gt(matchEvents.created_at, yearStart)).groupBy(tuesdayWeek(matchEvents.created_at)),
-			db.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() }).from(matchEvents).where(and(eq(matchEvents.status, "converted"), gt(matchEvents.created_at, yearStart))).groupBy(tuesdayWeek(matchEvents.created_at)),
-			db.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() }).from(matchEvents).where(and(eq(matchEvents.status, "dismissed"), gt(matchEvents.created_at, yearStart))).groupBy(tuesdayWeek(matchEvents.created_at)),
-			db.select({ week: tuesdayWeek(matchLogs.start_time), cnt: count() }).from(matchLogs).where(gt(matchLogs.start_time, yearStart)).groupBy(tuesdayWeek(matchLogs.start_time)),
+			db
+				.select({ week: tuesdayWeek(notes.created_at), cnt: count() })
+				.from(notes)
+				.where(gt(notes.created_at, yearStart))
+				.groupBy(tuesdayWeek(notes.created_at)),
+			db
+				.select({ week: tuesdayWeek(messages.created_at), cnt: count() })
+				.from(messages)
+				.where(gt(messages.created_at, yearStart))
+				.groupBy(tuesdayWeek(messages.created_at)),
+			db
+				.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() })
+				.from(matchEvents)
+				.where(gt(matchEvents.created_at, yearStart))
+				.groupBy(tuesdayWeek(matchEvents.created_at)),
+			db
+				.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() })
+				.from(matchEvents)
+				.where(and(eq(matchEvents.status, "converted"), gt(matchEvents.created_at, yearStart)))
+				.groupBy(tuesdayWeek(matchEvents.created_at)),
+			db
+				.select({ week: tuesdayWeek(matchEvents.created_at), cnt: count() })
+				.from(matchEvents)
+				.where(and(eq(matchEvents.status, "dismissed"), gt(matchEvents.created_at, yearStart)))
+				.groupBy(tuesdayWeek(matchEvents.created_at)),
+			db
+				.select({ week: tuesdayWeek(matchLogs.start_time), cnt: count() })
+				.from(matchLogs)
+				.where(gt(matchLogs.start_time, yearStart))
+				.groupBy(tuesdayWeek(matchLogs.start_time)),
+			db
+				.select({ week: tuesdayWeek(users.created_at), cnt: count() })
+				.from(users)
+				.where(gt(users.created_at, yearStart))
+				.groupBy(tuesdayWeek(users.created_at)),
+			db
+				.select({ week: tuesdayWeek(users.last_seen), cnt: count() })
+				.from(users)
+				.where(gt(users.last_seen, yearStart))
+				.groupBy(tuesdayWeek(users.last_seen)),
+			db
+				.select({ week: tuesdayWeek(events.created_at), cnt: count() })
+				.from(events)
+				.where(gt(events.created_at, yearStart))
+				.groupBy(tuesdayWeek(events.created_at)),
 		]);
 
 		const roleMap: Record<string, number> = {};
@@ -80,15 +128,20 @@ export const adminRouter = router({
 			...messagesWeekly.map((r) => String(r.week)),
 			...matchEventsWeekly.map((r) => String(r.week)),
 			...matchLogsWeekly.map((r) => String(r.week)),
+			...newUsersWeekly.map((r) => String(r.week)),
+			...activeUsersWeekly.map((r) => String(r.week)),
+			...newEventsWeekly.map((r) => String(r.week)),
 		]);
-		const toMap = (rows: { week: string; cnt: number }[]) =>
-			new Map(rows.map((r) => [String(r.week), r.cnt]));
+		const toMap = (rows: { week: string; cnt: number }[]) => new Map(rows.map((r) => [String(r.week), r.cnt]));
 		const notesMap = toMap(notesWeekly as any);
 		const messagesMap = toMap(messagesWeekly as any);
 		const matchEventsMap = toMap(matchEventsWeekly as any);
 		const convertedMap = toMap(convertedWeekly as any);
 		const dismissedMap = toMap(dismissedWeekly as any);
 		const matchLogsMap = toMap(matchLogsWeekly as any);
+		const newUsersMap = toMap(newUsersWeekly as any);
+		const activeUsersMap = toMap(activeUsersWeekly as any);
+		const newEventsMap = toMap(newEventsWeekly as any);
 
 		const activityWeeks = Array.from(allWeekKeys)
 			.sort((a, b) => b.localeCompare(a))
@@ -100,6 +153,9 @@ export const adminRouter = router({
 				matchEventsConverted: convertedMap.get(week) ?? 0,
 				matchEventsDismissed: dismissedMap.get(week) ?? 0,
 				matchLogsThisWeek: matchLogsMap.get(week) ?? 0,
+				newUsers: newUsersMap.get(week) ?? 0,
+				activeUsers: activeUsersMap.get(week) ?? 0,
+				newEvents: newEventsMap.get(week) ?? 0,
 			}));
 
 		const liveEventCount = Object.values(liveEvents).filter((e) => e.stats.extensions.length > 0).length;

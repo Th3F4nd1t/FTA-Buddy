@@ -4,10 +4,10 @@
 
 Every note has one of three statuses:
 
-| Status | Meaning |
-|--------|---------|
-| **Open** | Issue is unresolved and needs attention |
-| **Resolved** | Issue has been addressed |
+| Status             | Meaning                                               |
+| ------------------ | ----------------------------------------------------- |
+| **Open**           | Issue is unresolved and needs attention               |
+| **Resolved**       | Issue has been addressed                              |
 | **Not Applicable** | Note is no longer relevant (e.g. team didn't show up) |
 
 The Feed View defaults to showing only **Open** notes. Use the status filter to view resolved or all notes.
@@ -77,6 +77,7 @@ If the [FTA App integration](../integrations.md#fta-app-sync) is configured, not
 ## Notifications for Notes
 
 You can subscribe to notifications for:
+
 - **New notes** created at the event
 - **Notes you follow** being updated
 - **Notes assigned to you** being updated

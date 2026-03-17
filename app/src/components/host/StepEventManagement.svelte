@@ -91,7 +91,11 @@
 					disabled={extensionConfiguring}
 					onclick={configureExtension}
 				>
-					{extensionConfiguring ? "Configuring…" : extensionConfigured ? "Reconfigure extension" : "Configure extension"}
+					{extensionConfiguring
+						? "Configuring…"
+						: extensionConfigured
+							? "Reconfigure extension"
+							: "Configure extension"}
 				</button>
 			</span>
 		{:else}
@@ -113,17 +117,15 @@
 		<div class="flex items-center gap-2">
 			<span class="text-sm text-gray-400 w-24">Event Code</span>
 			<code class="bg-neutral-800 px-2 py-0.5 rounded-lg text-sm">{$eventStore.code}</code>
-			<button
-				class="text-xs text-blue-400 hover:underline"
-				onclick={() => copyToClipboard($eventStore.code)}>copy</button
+			<button class="text-xs text-blue-400 hover:underline" onclick={() => copyToClipboard($eventStore.code)}
+				>copy</button
 			>
 		</div>
 		<div class="flex items-center gap-2">
 			<span class="text-sm text-gray-400 w-24">Event Pin</span>
 			<code class="bg-neutral-800 px-2 py-0.5 rounded-lg text-sm">{$eventStore.pin}</code>
-			<button
-				class="text-xs text-blue-400 hover:underline"
-				onclick={() => copyToClipboard($eventStore.pin)}>copy</button
+			<button class="text-xs text-blue-400 hover:underline" onclick={() => copyToClipboard($eventStore.pin)}
+				>copy</button
 			>
 		</div>
 		{#if $userStore.eventToken}

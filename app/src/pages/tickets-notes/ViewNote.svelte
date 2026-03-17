@@ -383,7 +383,11 @@
 							break;
 						case "status":
 							if (data.note_id === note.id) {
-								note = { ...note, resolution_status: data.resolution_status as any, resolved_by: data.resolved_by };
+								note = {
+									...note,
+									resolution_status: data.resolution_status as any,
+									resolved_by: data.resolved_by,
+								};
 							}
 							break;
 						case "assign":
@@ -533,8 +537,11 @@
 						<NoteMatchInfo {note} {nextMatch} {playedMatchesSince} />
 
 						<!-- Created at + author -->
-						<div class="justify-center text-center sm:justify-start sm:text-left text-xs text-gray-400 dark:text-gray-500">
-							<FormattedTime date={note.created_at} formatter={formatTimeNoAgoHourMins} /> ago by {note.author.username}
+						<div
+							class="justify-center text-center sm:justify-start sm:text-left text-xs text-gray-400 dark:text-gray-500"
+						>
+							<FormattedTime date={note.created_at} formatter={formatTimeNoAgoHourMins} /> ago by {note
+								.author.username}
 						</div>
 
 						<!-- Status / match / assignment badges -->
@@ -542,7 +549,9 @@
 
 						<!-- Note text -->
 						<div class="border-b border-gray-400 dark:border-gray-700 py-3">
-							<p class="text-center sm:text-left text-black dark:text-white whitespace-pre-wrap leading-relaxed">
+							<p
+								class="text-center sm:text-left text-black dark:text-white whitespace-pre-wrap leading-relaxed"
+							>
 								{note.text}
 							</p>
 						</div>
