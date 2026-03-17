@@ -16,6 +16,9 @@
 	import { trpc } from "../../main";
 	import { navigate, route } from "../../router";
 	import { eventStore } from "../../stores/event";
+	import { track } from "../../util/telemetry";
+
+	track("note_viewed");
 	import { settingsStore } from "../../stores/settings";
 	import { userStore } from "../../stores/user";
 	import { clearNotificationsForNote } from "../../util/notifications";

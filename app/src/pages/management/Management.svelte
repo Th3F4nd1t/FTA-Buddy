@@ -16,10 +16,10 @@
 	let eventUsers: Record<string, EventUserEntry[]> = $state({});
 
 	type Stats = Awaited<ReturnType<typeof trpc.admin.getStats.query>>;
-	type TelemetryRow = { event_type: string; count: number };
+	type Telemetry = Awaited<ReturnType<typeof trpc.admin.getRecentTelemetry.query>>;
 
 	let stats: Stats | null = $state(null);
-	let telemetry: TelemetryRow[] = $state([]);
+	let telemetry: Telemetry | null = $state(null);
 	let statsLoading = $state(true);
 
 	onMount(() => {
@@ -123,10 +123,19 @@
 		return `${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`;
 	}
 
+	let telemetryWeekIndex = $state(0); // 0 = current week, 1 = prev, etc.
+	let telemetryShowYtd = $state(false);
+	let activityWeekIndex = $state(0); // 0 = current week, 1 = prev, etc.
+
 	const telemetryLabels: Record<string, string> = {
 		page_view: "Page Views",
 		match_log_viewed: "Match Log Views",
+		station_log_viewed: "Station Log Views",
 		team_history_viewed: "Team History Views",
+		note_viewed: "Note Views",
+		notepad_viewed: "Support Board Views",
+		flashcards_viewed: "Flashcard Views",
+		event_report_viewed: "Event Report Views",
 	};
 </script>
 
@@ -136,7 +145,7 @@
 		<!-- Stats Cards -->
 		{#if statsLoading}
 			<div class="flex items-center justify-center py-8">
-				<Icon icon="mdi:loading" class="w-8 h-8 animate-spin text-primary-600" />
+				<Icon icon="mdi:loading" class="w-8 h-8 animate-spin text-primary-700 dark:text-primary-400" />
 			</div>
 		{:else if stats}
 			<!-- User Stats -->
@@ -144,15 +153,15 @@
 				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Users</h2>
 				<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-primary-600">{stats.users.total}</p>
+						<p class="text-3xl font-bold text-primary-700 dark:text-primary-400">{stats.users.total}</p>
 						<p class="text-sm text-gray-500 mt-1">Total Users</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-green-600">{stats.users.newThisWeek}</p>
+						<p class="text-3xl font-bold text-green-700 dark:text-green-400">{stats.users.newThisWeek}</p>
 						<p class="text-sm text-gray-500 mt-1">New This Week</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-blue-600">{stats.users.activeThisWeek}</p>
+						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{stats.users.activeThisWeek}</p>
 						<p class="text-sm text-gray-500 mt-1">Active This Week</p>
 					</Card>
 					<Card class="p-4">
@@ -171,19 +180,19 @@
 				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Events</h2>
 				<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-primary-600">{stats.events.total}</p>
+						<p class="text-3xl font-bold text-primary-700 dark:text-primary-400">{stats.events.total}</p>
 						<p class="text-sm text-gray-500 mt-1">Total Events</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-green-600">{stats.events.active}</p>
-						<p class="text-sm text-gray-500 mt-1">Not Archived</p>
+						<p class="text-3xl font-bold text-green-700 dark:text-green-400">{stats.events.active}</p>
+						<p class="text-sm text-gray-500 mt-1">This Season</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-blue-600">{stats.events.newThisWeek}</p>
-						<p class="text-sm text-gray-500 mt-1">New This Week</p>
+						<p class="text-3xl font-bold text-blue-700 dark:text-blue-400">{stats.events.newThisWeek}</p>
+						<p class="text-sm text-gray-500 mt-1">This Week</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-3xl font-bold text-yellow-500">{stats.events.liveNow}</p>
+						<p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{stats.events.liveNow}</p>
 						<p class="text-sm text-gray-500 mt-1">Live Now</p>
 					</Card>
 				</div>
@@ -191,60 +200,130 @@
 
 			<!-- Activity This Week -->
 			<div>
-				<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Activity This Week</h2>
+				<div class="flex items-center justify-between mb-3">
+					<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Activity</h2>
+					<div class="flex items-center gap-2">
+						<button
+							class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+							disabled={activityWeekIndex >= stats.activityWeeks.length - 1}
+							onclick={() => activityWeekIndex++}
+						>
+							<Icon icon="mdi:chevron-left" class="w-5 h-5" />
+						</button>
+						<span class="text-sm text-gray-600 dark:text-gray-400 min-w-20 text-center">
+							{activityWeekIndex === 0
+								? "This Week"
+								: "Wk of " + new Date(stats.activityWeeks[activityWeekIndex]?.weekStart ?? "").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+						</span>
+						<button
+							class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+							disabled={activityWeekIndex === 0}
+							onclick={() => activityWeekIndex--}
+						>
+							<Icon icon="mdi:chevron-right" class="w-5 h-5" />
+						</button>
+					</div>
+				</div>
+				{@const activityData = activityWeekIndex === 0 ? stats.activity : (stats.activityWeeks[activityWeekIndex] ?? stats.activity)}
 				<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.activity.notesThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.notesThisWeek}</p>
 						<p class="text-xs text-gray-500 mt-1">Notes</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.activity.messagesThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.messagesThisWeek}</p>
 						<p class="text-xs text-gray-500 mt-1">Messages</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.activity.matchEventsThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.matchEventsThisWeek}</p>
 						<p class="text-xs text-gray-500 mt-1">Auto Events</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-green-600">{stats.activity.matchEventsConverted}</p>
+						<p class="text-2xl font-bold text-green-700 dark:text-green-400">{activityData.matchEventsConverted}</p>
 						<p class="text-xs text-gray-500 mt-1">Converted</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-red-500">{stats.activity.matchEventsDismissed}</p>
+						<p class="text-2xl font-bold text-red-600 dark:text-red-400">{activityData.matchEventsDismissed}</p>
 						<p class="text-xs text-gray-500 mt-1">Dismissed</p>
 					</Card>
 					<Card class="p-4 text-center">
-						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats.activity.matchLogsThisWeek}</p>
+						<p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{activityData.matchLogsThisWeek}</p>
 						<p class="text-xs text-gray-500 mt-1">Match Logs</p>
 					</Card>
 				</div>
 			</div>
 
 			<!-- Telemetry -->
-			{#if telemetry.length > 0}
-				<div>
-					<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Feature Usage (Last 7 Days)</h2>
-					<Card class="p-4">
+			<div>
+				<div class="flex items-center justify-between mb-3">
+					<h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Feature Usage</h2>
+					{#if telemetry && telemetry.weeks.length > 0}
+						<div class="flex items-center gap-2">
+							{#if !telemetryShowYtd}
+								<button
+									class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+									disabled={telemetryWeekIndex >= telemetry.weeks.length - 1}
+									onclick={() => telemetryWeekIndex++}
+								>
+									<Icon icon="mdi:chevron-left" class="w-5 h-5" />
+								</button>
+								<span class="text-sm text-gray-600 dark:text-gray-400 min-w-20 text-center">
+									{telemetryWeekIndex === 0
+										? "This Week"
+										: "Wk of " + new Date(telemetry.weeks[telemetryWeekIndex]?.weekStart ?? "").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+								</span>
+								<button
+									class="p-1 rounded text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30"
+									disabled={telemetryWeekIndex === 0}
+									onclick={() => telemetryWeekIndex--}
+								>
+									<Icon icon="mdi:chevron-right" class="w-5 h-5" />
+								</button>
+							{/if}
+							<button
+								class="text-xs px-3 py-1 rounded-full border transition-colors
+									{telemetryShowYtd
+										? 'bg-primary-600 text-white border-primary-600'
+										: 'text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-primary-500'}"
+								onclick={() => { telemetryShowYtd = !telemetryShowYtd; telemetryWeekIndex = 0; }}
+							>
+								YTD
+							</button>
+						</div>
+					{/if}
+				</div>
+				<Card class="p-4">
+					{#if !telemetry || telemetry.eventTypes.length === 0}
+						<p class="text-sm text-gray-400 italic">No telemetry data yet.</p>
+					{:else}
+						{@const rows = telemetryShowYtd
+							? telemetry.ytd
+							: telemetry.eventTypes.map((type) => ({
+									event_type: type,
+									count: telemetry.weeks[telemetryWeekIndex]?.counts[type] ?? 0,
+								}))}
+						{@const max = Math.max(...rows.map((r) => r.count), 1)}
 						<div class="flex flex-col gap-2">
-							{#each telemetry as row}
-								{@const max = telemetry[0].count}
+							{#each rows as row}
 								<div class="flex items-center gap-3">
-									<span class="text-sm text-gray-600 dark:text-gray-400 w-40 shrink-0">
+									<span class="text-sm text-gray-600 dark:text-gray-400 w-44 shrink-0">
 										{telemetryLabels[row.event_type] ?? row.event_type}
 									</span>
 									<div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
 										<div
-											class="bg-primary-500 h-full rounded-full transition-all"
+											class="bg-primary-500 h-full rounded-full transition-all duration-300"
 											style="width: {Math.round((row.count / max) * 100)}%"
 										></div>
 									</div>
-									<span class="text-sm font-semibold text-gray-700 dark:text-gray-300 w-12 text-right">{row.count}</span>
+									<span class="text-sm font-semibold text-gray-700 dark:text-gray-300 w-14 text-right">
+										{row.count > 0 ? row.count.toLocaleString() : "—"}
+									</span>
 								</div>
 							{/each}
 						</div>
-					</Card>
-				</div>
-			{/if}
+					{/if}
+				</Card>
+			</div>
 		{/if}
 
 		<!-- Known Issue Control -->
