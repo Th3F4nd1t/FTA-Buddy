@@ -22,12 +22,12 @@ function authorName(val: unknown): string {
 }
 
 function fmtMs(ms: number | null | undefined): string {
-	if (!ms || ms <= 0) return "—";
-	return formatTimeShortNoAgoMinutes(ms) ?? "—";
+	if (!ms || ms <= 0) return "-";
+	return formatTimeShortNoAgoMinutes(ms) ?? "-";
 }
 
 function fmtDate(d: Date | string | null | undefined): string {
-	if (!d) return "—";
+	if (!d) return "-";
 	const dt = d instanceof Date ? d : new Date(d);
 	return dt.toLocaleString("en-US", {
 		month: "short",

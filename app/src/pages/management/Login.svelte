@@ -331,7 +331,7 @@
 	let previousEventList = $derived(
 		Object.values($savedEventsStore).map((e) => ({
 			value: e.code,
-			name: e.label ? `${e.code} — ${e.label}` : e.code,
+			name: e.label ? `${e.code} - ${e.label}` : e.code,
 		})),
 	);
 
@@ -675,8 +675,8 @@
 						<Input id="event-code" bind:value={eventCode} placeholder="2024mitry" />
 					</div>
 					<div>
-						<Label for="event-pin">Event Pin</Label>
-						<Input id="event-pin" bind:value={eventPin} placeholder="1234" />
+						<Label for="event-pin">Event Password</Label>
+						<Input id="event-pin" bind:value={eventPin} placeholder="robot-field-42" />
 					</div>
 					<Button type="submit">Join Event</Button>
 				</form>

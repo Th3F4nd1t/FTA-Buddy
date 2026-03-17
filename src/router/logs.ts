@@ -493,7 +493,7 @@ export const matchRouter = router({
 					return a.play_number - b.play_number;
 				});
 			} catch {
-				// TBA fetch failed — return played matches only (already in result)
+				// TBA fetch failed - return played matches only (already in result)
 			}
 
 			return result;

@@ -80,9 +80,9 @@
 		{#if extensionDetected}
 			<span class="text-xs text-gray-500">
 				{#if !extensionEnabled}
-					Extension not enabled —
+					Extension not enabled -
 				{:else if !extensionFieldMonitor}
-					Field monitor off —
+					Field monitor off -
 				{:else}
 					Field monitor on ·
 				{/if}
@@ -96,7 +96,7 @@
 			</span>
 		{:else}
 			<span class="text-xs text-gray-500">
-				No extension detected —
+				No extension detected -
 				<a
 					href="https://chromewebstore.google.com/detail/fta-buddy/kddnhihfpfnehnnhbkfajdldlgigohjc"
 					target="_blank"

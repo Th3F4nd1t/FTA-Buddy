@@ -1,16 +1,18 @@
 # FTA Buddy - FMS Integration Overview
 
-FTA Buddy's browser extension connects to FMS at `10.0.100.5` using SignalR push subscriptions for live data and REST API calls for everything else. The general approach is to use SignalR wherever possible and only hit REST endpoints when needed: once on startup, in response to a specific event, or periodically when there's no push alternative.
+FTA Buddy's browser extension connects to FMS at `10.0.100.5` using SignalR push subscriptions for live data and REST API calls for everything else.
 
-The SignalR connection model is based directly on how the official FMS Field Monitor and Audience Display work. FTA Buddy subscribes to the same hubs and events those tools use, and does nothing to modify or interfere with FMS.
+The original inspiration for creating this app was to be able to see the field monitor on your phone or tablet device, without the risk of causing FMS to lag if the device has poor signal. A single SignalR client running FTA Buddy can serve many wireless clients at the event with no additional load on FMS.
 
-The extension's role is purely data collection. It receives or fetches data from FMS, then forwards it to a remote FTA Buddy server for storage and processing. All the heavy lifting (analysis, display, storage) happens on that server, not locally and not on the FMS network. This means the extension should not have any meaningful impact on FMS performance.
+The SignalR connection model is based directly on how the official FMS Field Monitor and Audience Display work. FTA Buddy listens to the same data streams that power the official Field Monitor. The only actions that write back to FMS are the standard FTA App note endpoints, allowing notes created in FTA Buddy to remain synchronized with the official FTA App.
+
+The extension acts only as a lightweight data relay. It receives or fetches data from FMS, then forwards it to a remote FTA Buddy server for storage and processing. All the heavy lifting (analysis, storage, relaying) happens on that server, not locally and not on the FMS network.
 
 ---
 
 ## SignalR Hubs
 
-The extension connects to four SignalR hubs. All connections use automatic reconnect with exponential backoff (capped at 2 min), a 30-second server timeout, and a 15-second keep-alive interval.
+The extension connects to three SignalR hubs. All connections use automatic reconnect with exponential backoff (capped at 2 min), a 30-second server timeout, and a 15-second keep-alive interval.
 
 ### `fieldMonitorHub`
 
@@ -42,10 +44,6 @@ The extension connects to `ftaAppHub` using the FTA App token. This keeps FTA Bu
 | `noteresolved` | Marks the note as resolved. |
 | `notedeleted` | Removes the note. |
 
-### `gameSpecificHub`
-
-The extension maintains a connection to `gameSpecificHub` but does not currently do anything with the events it receives. They are logged to the console only.
-
 ---
 
 ## REST API Calls
@@ -65,12 +63,6 @@ The extension maintains a connection to `gameSpecificHub` but does not currently
 | `GET /api/v1.0/fieldmonitor/get/GetResults/{level}` | After a match ends, this is called to get the FMS-internal `fmsMatchId` for the match. That UUID is needed to fetch DS logs and isn't available from SignalR. |
 | `GET /api/v1.0/fieldmonitor/get/GetLog/{matchId}/{alliance}/{station}` | Called once per robot (6 times per match) to retrieve each station's DS connection log, which is then uploaded to FTA Buddy for review and analysis. |
 
-### On-demand (triggered by user action)
-
-| Endpoint | Why |
-|---|---|
-| `GET /api/v1.0/fieldmonitor/get/GetResultsByTeamNumber/{team}` | Called when a user looks up a specific team's match history. |
-
 ### Notes (triggered by user action)
 
 These write back to FMS so notes show up in both FTA Buddy and the FMS FTA App.
@@ -85,9 +77,9 @@ These write back to FMS so notes show up in both FTA Buddy and the FMS FTA App.
 
 ## Periodic Polling
 
-There are two background polls. FTA Buddy stops the team list poll as soon as it's no longer needed.
+There are two background polls. Both polls are skipped entirely while a match is actively running (i.e. when SignalR reports the field is in auto, transition, or teleop) to avoid unnecessary FMS load during a match. FTA Buddy also stops the team list poll as soon as it's no longer needed.
 
 | What | Interval | Notes |
 |---|---|---|
-| `GET /api/v1.0/match/get/GetAllTeamNumbers` | Every 5 minutes | Tracks any changes to the team list that might happen if a team drops the event day of. Stops automatically once the quals schedule is available, since the team list is stable by then. |
-| Match log auto-import | Every 5 minutes | Fetches the list of completed matches from FMS, compares it against what has already been imported, and downloads DS logs only for matches that haven't been uploaded yet. This is a safety net for matches that were missed at match end (e.g. if the extension was offline). Runs for the duration of the event. |
+| `GET /api/v1.0/match/get/GetAllTeamNumbers` | Every 5 minutes | Tracks any changes to the team list that might happen if a team drops the event day of. Stops automatically once the quals schedule is available, since the team list is stable by then. Skipped while a match is running. |
+| Match log auto-import | Every 5 minutes | Fetches the list of completed matches from FMS, compares it against what has already been imported, and downloads DS logs only for matches that haven't been uploaded yet. This is a safety net for matches that were missed at match end (e.g. if the extension was offline). Runs for the duration of the event. Skipped while a match is running. |

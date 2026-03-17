@@ -210,7 +210,7 @@
 			} else if (li === 0) {
 				matchIndex = 0; // already at the first match
 			} else if (allMatches.length > 0) {
-				// Couldn't find live match — fall back to last played
+				// Couldn't find live match - fall back to last played
 				const lastPlayed = allMatches.findLastIndex((m) => m.isPlayed);
 				matchIndex = lastPlayed >= 0 ? lastPlayed : allMatches.length - 1;
 			}
@@ -229,7 +229,7 @@
 			if (li >= 0 && li < allMatches.length - 1) {
 				matchIndex = li + 1;
 			} else if (li === -1 && allMatches.length > 0) {
-				// Couldn't find live match — go to first unplayed
+				// Couldn't find live match - go to first unplayed
 				const firstUnplayed = allMatches.findIndex((m) => !m.isPlayed);
 				matchIndex = firstUnplayed >= 0 ? firstUnplayed : allMatches.length - 1;
 			}

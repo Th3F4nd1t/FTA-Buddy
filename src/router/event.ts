@@ -209,7 +209,7 @@ export const eventRouter = router({
 		.input(
 			z.object({
 				code: z.string().startsWith("202").min(6),
-				pin: z.string().min(4),
+				pin: z.string().min(5),
 				teams: z.array(z.number()).optional(),
 				notepadOnly: z.boolean().optional().default(false),
 			}),
@@ -458,7 +458,7 @@ export const eventRouter = router({
 		.input(
 			z.object({
 				code: z.string().min(4),
-				pin: z.string().min(4),
+				pin: z.string().min(5),
 				events: z
 					.array(
 						z.object({
